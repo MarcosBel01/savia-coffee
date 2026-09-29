@@ -78,3 +78,10 @@ La aplicación servida en Pages es React estático y conecta directamente a Supa
 Se han comprobado la compilación estática y los tipos TypeScript. Las pruebas de contrato comprueban ratios, separación de ejemplos, persistencia y exportaciones. Se ha verificado GitHub Actions y la carga de la app publicada. En Supabase se han comprobado guardado, incremento de revisión, rechazo de conflictos y aislamiento por usuario en una transacción revertida; el asesor de seguridad no devuelve incidencias. Quedan pendientes la instalación real en un móvil y el flujo de registro de una cuenta personal con su correo.
 
 El almacenamiento local pertenece a un dispositivo y navegador. Exporta copias de seguridad antes de borrar sus datos. Los cafés de ejemplo son ficticios y no representan fichas verificadas de los tostadores.
+
+## Experimentar con tus recetas
+
+- Abre una receta y pulsa **Repetir receta**: crea una copia al guardar, con fecha local de hoy y puntuaciones reiniciadas a 5/10. Revisa las notas copiadas y vuelve a puntuar; cancelar no crea registros.
+- En **Ajustes → Mis molinos**, añade nombre/modelo, unidad y notas. Selecciona el perfil desde el formulario de receta. Las recetas guardan una instantánea del nombre y unidad; editar o eliminar un perfil no modifica el historial.
+- En **Análisis → Comparar dos tazas**, selecciona A y B. Se muestran diferencias B menos A, notas y accesos para repetir. Los filtros afectan las opciones. Molinos o unidades diferentes no generan diferencias numéricas de ajuste.
+- Los perfiles viajan en el JSON y en la copia manual de Supabase. El formato sigue siendo compatible con cuadernos existentes: los campos nuevos son opcionales, sin migración de base de datos.

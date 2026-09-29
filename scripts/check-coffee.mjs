@@ -1,6 +1,6 @@
 import fs from 'node:fs';import ts from 'typescript';import assert from 'node:assert/strict';
 const js=ts.transpileModule(fs.readFileSync('lib/coffee.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
-const {ratio,readData,writeData,demo,empty,download}=await import('data:text/javascript;base64,'+Buffer.from(js).toString('base64'));
+const {ratio,readData,writeData,demo,empty,download,repeatRecipe,sameGrinder,localDate}=await import('data:text/javascript;base64,'+Buffer.from(js).toString('base64'));
 const memory=new Map();global.localStorage={getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v)};
 assert.equal(ratio(demo.recipes[0]),'16.7');assert.equal(ratio(demo.recipes[2]),'2.1');assert.deepEqual(readData(),empty);
 writeData(demo);assert.deepEqual(readData(),demo);assert.equal(empty.beans.length,0);
@@ -9,3 +9,14 @@ download(demo,'json');assert.deepEqual(JSON.parse(await blob.text()),demo);
 const malicious=structuredClone(demo);malicious.recipes[0].notes='=1+1\n"quoted",value';download(malicious,'csv');const csv=await blob.text();assert.ok(csv.includes("\"'=1+1\n\"\"quoted\"\",value\""));assert.ok(csv.includes('"16.7"'));
 const manifest=JSON.parse(fs.readFileSync('public/manifest.webmanifest'));assert.equal(manifest.scope,'./');for(const icon of manifest.icons)assert.ok(fs.existsSync('public/'+icon.src));
 console.log('PASS: filter and espresso ratios, local persistence, demo isolation, JSON and CSV export, PWA assets');
+
+const original=structuredClone(demo.recipes[0]);const repeated=repeatRecipe(original);
+assert.notEqual(repeated.id,original.id);assert.equal(repeated.sourceRecipeId,original.id);assert.equal(repeated.date,localDate());assert.equal(repeated.score,5);assert.equal(repeated.notes,original.notes);assert.deepEqual(original,demo.recipes[0]);
+assert.equal(sameGrinder(original,demo.recipes[3]),true);assert.equal(sameGrinder(original,demo.recipes[2]),false);
+assert.equal(sameGrinder({...original,grinderUnit:'clics'},{...original,grinderUnit:'vueltas'}),false);
+assert.equal(sameGrinder({...original,grinderId:'one'},{...original,grinderId:'two'}),false);
+const upgraded={...structuredClone(demo),grinders:[{id:'g1',name:'Molino personal',unit:'clics',notes:'Cero calibrado'}]};
+upgraded.recipes.push({...repeated,grinderId:'g1',grinderUnit:'clics'});writeData(upgraded);assert.deepEqual(readData(),upgraded);
+download(upgraded,'json');assert.deepEqual(JSON.parse(await blob.text()),upgraded);
+download(upgraded,'csv');assert.ok((await blob.text()).includes('"grinderUnit"'));
+console.log('PASS: legacy notebooks, independent repeat, grinder scale separation and full backup roundtrip');

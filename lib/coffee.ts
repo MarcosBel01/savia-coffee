@@ -1,6 +1,7 @@
 export type Bean = { id:string; name:string; roaster:string; origin:string; producer:string; variety:string; process:string; altitude:string; notes:string; roastDate:string };
-export type Recipe = { id:string; beanId:string; date:string; method:string; dose:number; water:number; output:number; seconds:number; temperature:number; grinder:string; clicks:number; score:number; acidity:number; sweetness:number; body:number; finish:number; notes:string };
-export type Data = { version:1; beans:Bean[]; recipes:Recipe[] };
+export type Grinder = { id:string; name:string; unit:string; notes:string };
+export type Recipe = { id:string; grinderId?:string; grinderUnit?:string; sourceRecipeId?:string; beanId:string; date:string; method:string; dose:number; water:number; output:number; seconds:number; temperature:number; grinder:string; clicks:number; score:number; acidity:number; sweetness:number; body:number; finish:number; notes:string };
+export type Data = { version:1; beans:Bean[]; recipes:Recipe[]; grinders?:Grinder[] };
 export const empty:Data={version:1,beans:[],recipes:[]};
 export const methods=['V60','AeroPress','Espresso','Chemex','Prensa francesa','Otro'];
 export const ratio=(r:Recipe)=>((r.method==='Espresso'?r.output:r.water)/r.dose).toFixed(1);
@@ -19,7 +20,16 @@ export function writeData(data:Data){localStorage.setItem('savia-data-v1',JSON.s
 export function download(data:Data,format:'json'|'csv'){
  const cell=(v:unknown)=>'"'+String(v??'').replace(/^[=+@\-]/,"'$&").replaceAll('"','""')+'"';
  const rows=data.recipes.map(r=>({...r,cafe:data.beans.find(b=>b.id===r.beanId)?.name,ratio:ratio(r)}));
- const keys=rows.length?Object.keys(rows[0]):['id','beanId','date','method','dose','water','output','seconds','temperature','grinder','clicks','score','acidity','sweetness','body','finish','notes','cafe','ratio'];
+ const keys=rows.length?[...new Set(rows.flatMap(row=>Object.keys(row)))]:['id','beanId','date','method','dose','water','output','seconds','temperature','grinder','clicks','score','acidity','sweetness','body','finish','notes','cafe','ratio'];
  const content=format==='json'?JSON.stringify(data,null,2):'\uFEFF'+[keys.map(cell).join(','),...rows.map(r=>keys.map(k=>cell(r[k as keyof typeof r])).join(','))].join('\r\n');
  const url=URL.createObjectURL(new Blob([content],{type:format==='json'?'application/json':'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=`savia-${new Date().toISOString().slice(0,10)}.${format}`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+// Additive fields keep existing notebooks and cloud snapshots compatible.
+export const localDate=()=>new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
+export function repeatRecipe(source:Recipe):Recipe {
+ return {...source,id:crypto.randomUUID(),sourceRecipeId:source.id,date:localDate(),score:5,acidity:5,sweetness:5,body:5,finish:5};
+}
+export function sameGrinder(a:Recipe,b:Recipe){
+ return (a.grinderId&&b.grinderId?a.grinderId===b.grinderId:a.grinder.trim().toLowerCase()===b.grinder.trim().toLowerCase())&&(a.grinderUnit||'ajuste')===(b.grinderUnit||'ajuste');
 }

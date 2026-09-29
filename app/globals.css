@@ -49,3 +49,11 @@ dialog > form { display: flex; flex-direction: column; max-height: calc(100dvh -
   .bottom-nav button { min-width: 0; padding-inline: 6px; }
   .stats strong { flex-wrap: wrap; }
 }
+/* Experiment tools stay inside the same bounded, mobile-first layout. */
+.grinder-item{display:flex;justify-content:space-between;align-items:start;gap:20px;padding:18px 0;border-bottom:1px solid var(--line)}
+.grinder-item>div{min-width:0}.grinder-item small{display:block;color:var(--muted);margin-top:5px}.grinder-item p{white-space:pre-wrap;margin:8px 0 0}.grinder-editor{border-top:1px solid var(--line);padding-top:20px;margin-top:20px}
+.repeat-notice,.comparison-summary{background:var(--soft);border-radius:6px;padding:15px}
+.comparison-summary{display:flex;gap:15px;justify-content:space-between;flex-wrap:wrap;margin:5px 0 20px}.comparison-summary strong{color:var(--accent)}.comparison-summary span{font-size:14px}
+.comparison .table-wrap table{min-width:540px;white-space:normal}.comparison .table-wrap th,.comparison .table-wrap td{min-width:0;max-width:200px;overflow-wrap:anywhere}.comparison tr.changed td{background:var(--soft)}
+.comparison-notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-bottom:24px}.comparison-notes p{white-space:pre-wrap;overflow-wrap:anywhere}.comparison select{width:100%}.grinder-item .actions{flex-shrink:0}
+@media(max-width:640px){.comparison-notes{grid-template-columns:minmax(0,1fr)}.grinder-item{flex-direction:column}.modal-footer{gap:8px}.modal-footer .button{padding:10px 12px}}
