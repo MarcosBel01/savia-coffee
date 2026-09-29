@@ -2,6 +2,14 @@
 
 PWA en español para registrar cafés, extracciones y puntuaciones. React + TypeScript + Tailwind/CSS; salida estática con Vite para GitHub Pages. Backend opcional Supabase (PostgreSQL, Auth y RLS). No requiere un servidor Node en producción.
 
+## App y backend publicados
+
+- App: https://marcosbel01.github.io/savia-coffee/
+- Código: https://github.com/MarcosBel01/savia-coffee
+- Proyecto Supabase: `savia-coffee`, región París (`eu-west-3`), organización ProyectosPersonales.
+- Conexión precargada: en Ajustes basta con crear una cuenta, confirmar el correo e iniciar sesión.
+- Plan Free en el momento de la creación. Las copias se guardan y recuperan manualmente.
+
 ## Desarrollo local
 
 1. Instala Node.js 22.13 o posterior.
@@ -35,13 +43,13 @@ La PWA necesita HTTPS, salvo localhost. Para probar offline, abre la compilació
 
 La copia remota usa PostgreSQL con un documento JSONB por usuario para minimizar tablas y dependencias. Los cafés y las recetas están relacionados por `beanId` dentro del documento. No se han normalizado en tablas independientes; para consultas SQL avanzadas se puede migrar el adaptador de `lib/cloud.ts` sin cambiar la interfaz.
 
-RLS restringe la lectura al propietario. Las escrituras solo pasan por `save_notebook`, que obtiene el usuario del JWT, no del cliente. El servidor rechaza una escritura si la revisión remota ha cambiado; exporta tus cambios locales y recupera la copia antes de reintentarlo. Recuperar una copia sustituye los datos locales con confirmación.
+RLS restringe la lectura y las escrituras al propietario. La app escribe mediante `save_notebook`, que obtiene el usuario del JWT. La función se ejecuta con los permisos del usuario y RLS restringe SELECT, INSERT y UPDATE al propietario. El servidor rechaza una escritura si la revisión remota ha cambiado; exporta tus cambios locales y recupera la copia antes de reintentarlo. Recuperar una copia sustituye los datos locales con confirmación.
 
 La sesión se conserva en memoria mientras la página permanezca abierta. Tras recargar o caducar el token hay que iniciar sesión otra vez. No se guardan contraseñas ni tokens de sesión en localStorage. La URL y clave pública sí se guardan localmente. Las copias offline no se envían solas: pulsa Guardar en la nube cuando vuelvas a tener conexión.
 
 ## GitHub Pages
 
-El repositorio y el despliegue todavía deben crearse; no hay una URL publicada en esta entrega.
+El repositorio y GitHub Pages ya están configurados. Cada push a `main` vuelve a publicar la app. Para desplegar una copia en otra cuenta:
 
 1. Crea un repositorio `savia-coffee` en tu cuenta y sube los archivos del proyecto, sin `node_modules`, `pages-dist` ni datos privados.
 2. En Settings > Pages, selecciona **GitHub Actions** como origen.
@@ -67,6 +75,6 @@ La aplicación servida en Pages es React estático y conecta directamente a Supa
 
 ## Verificación y límites
 
-Se han comprobado la compilación estática y los tipos TypeScript. Las pruebas de contrato comprueban ratios, separación de ejemplos, persistencia y exportaciones. Quedan pendientes la prueba interactiva en móvil, la instalación real de la PWA y la ejecución del SQL/autenticación en un proyecto Supabase conectado. No se afirma que estén desplegados.
+Se han comprobado la compilación estática y los tipos TypeScript. Las pruebas de contrato comprueban ratios, separación de ejemplos, persistencia y exportaciones. Se ha verificado GitHub Actions y la carga de la app publicada. En Supabase se han comprobado guardado, incremento de revisión, rechazo de conflictos y aislamiento por usuario en una transacción revertida; el asesor de seguridad no devuelve incidencias. Quedan pendientes la instalación real en un móvil y el flujo de registro de una cuenta personal con su correo.
 
 El almacenamiento local pertenece a un dispositivo y navegador. Exporta copias de seguridad antes de borrar sus datos. Los cafés de ejemplo son ficticios y no representan fichas verificadas de los tostadores.
