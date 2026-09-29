@@ -1,0 +1,2 @@
+import fs from 'node:fs';import crypto from 'node:crypto';
+const root='pages-dist';const assets=fs.readdirSync(root+'/assets').filter(f=>/\.(js|css)$/.test(f)).map(f=>'./assets/'+f);let sw=fs.readFileSync(root+'/sw.js','utf8');sw=sw.replace("'savia-shell-v1'",JSON.stringify('savia-shell-'+crypto.randomBytes(6).toString('hex'))).replace("const SHELL=['./','./manifest.webmanifest','./icon-192.png','./icon-512.png'];",`const SHELL=${JSON.stringify(['./','./manifest.webmanifest','./icon-192.png','./icon-512.png',...assets])};`);fs.writeFileSync(root+'/sw.js',sw);
